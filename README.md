@@ -1,6 +1,6 @@
 # hcoErosions
 
-This repository provides the code to make gene loss predictions (called *hcoErosions*) in a set of species (*species.txt*), given (i) a reference assembly and annotated gene set (such as *hg38* and *ref_genes/hg38.transcriptCoding_clean.bed*, respectively), (ii) a set of pairwise alignment chains (that can be downloaded from http://hgdownload.cse.ucsc.edu or generated from raw genome assembly using [doBlastzChainNet.pl](https://github.com/ENCODE-DCC/kentUtils/blob/master/src/hg/utils/automation/doBlastzChainNet.pl)) and (iii) a phylogenetic tree for reference and query species (such as *species-tree.nh*), as described in our manuscript [1]. 
+This repository provides the code to make gene loss predictions (called *hcoErosions*) in a set of species (*species.txt*), given (i) a reference assembly and its annotated gene set (such as *hg38* and *ref_genes/hg38.transcriptCoding_clean.bed*, respectively), (ii) a set of pairwise alignment chains (that can be downloaded from http://hgdownload.cse.ucsc.edu or generated from raw genome assembly using [doBlastzChainNet.pl](https://github.com/ENCODE-DCC/kentUtils/blob/master/src/hg/utils/automation/doBlastzChainNet.pl)) and (iii) a phylogenetic tree for reference and query species (such as *species-tree.nh*), as described in our manuscript [1]. 
 
 The code has been tested successfully on an Ubuntu 18.04 LTS Server but should work on other Linux distributions as well. 
 
