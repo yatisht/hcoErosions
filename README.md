@@ -1,6 +1,12 @@
 # hcoErosions
 
-This repository provides the code to make gene loss predictions (called *hcoErosions*) in a set of species (*species.txt*), given a reference assembly and annotated gene set (such as *hg38* and *ref_genes/hg38.transcriptCoding_clean.bed*, respectively), a set of pairwise alignment chains (that can be downloaded from http://hgdownload.cse.ucsc.edu or generated from raw genome assembly using https://github.com/ENCODE-DCC/kentUtils/blob/master/src/hg/utils/automation/doBlastzChainNet.pl) and a phylogenetic tree for reference and query species (such as *species-tree.nh*), as described in our manuscript [1]. The code has been tested successfully on an Ubuntu 18.04 LTS Server but should work on other linux distributions as well. The steps below provide sample instructions using human (hg38) reference assembly, which can be substituted for any other reference, and using four other species (mouse (mm10), rat (rn6), rabbit (cavPor3) armadillo (dasNov3)). These steps should complete in <1 day on a 4-core CPU if *Step 8* is parallelized. The query species are chose in a way that loss predictions are made primiarily for mouse (mm10) and rat (rn6) genomes. In particular, it shows 30 out of 86 predictions for mouse and rat described in [1]. For all 86 predictions, 58 placental mammals used in [1] should be provided as input under *species.txt*. This may require several days of compute time and may also require some alignment chains not available from http://hgdownload.cse.ucsc.edu to be generated using [doBlastzChainNet.pl](https://github.com/ENCODE-DCC/kentUtils/blob/master/src/hg/utils/automation/doBlastzChainNet.pl). 
+This repository provides the code to make gene loss predictions (called *hcoErosions*) in a set of species (*species.txt*), given (i) a reference assembly and annotated gene set (such as *hg38* and *ref_genes/hg38.transcriptCoding_clean.bed*, respectively), (ii) a set of pairwise alignment chains (that can be downloaded from http://hgdownload.cse.ucsc.edu or generated from raw genome assembly using [doBlastzChainNet.pl](https://github.com/ENCODE-DCC/kentUtils/blob/master/src/hg/utils/automation/doBlastzChainNet.pl) and (iii) a phylogenetic tree for reference and query species (such as *species-tree.nh*), as described in our manuscript [1]. 
+
+The code has been tested successfully on an Ubuntu 18.04 LTS Server but should work on other Linux distributions as well. 
+
+The steps below provide sample instructions using human (hg38) reference assembly, which can be substituted for any other reference, and using four other species (mouse (mm10), rat (rn6), rabbit (cavPor3) and armadillo (dasNov3)). These steps should complete in <1 day on a 4-core CPU when *Step 8* is parallelized. 
+
+The query species are chose in a way that loss predictions are made primiarily for mouse (mm10) and rat (rn6) genomes. In particular, it makes 30 out of 86 predictions for mouse and rat described in [1]. For all 86 predictions, 58 placental mammals used in [1] should be provided as input under *species.txt*. This may require several days of compute time and may also require some alignment chains not available from http://hgdownload.cse.ucsc.edu to be generated using [doBlastzChainNet.pl](https://github.com/ENCODE-DCC/kentUtils/blob/master/src/hg/utils/automation/doBlastzChainNet.pl). 
 
 *Step 1:* Install prerequisites
 ```
@@ -88,7 +94,7 @@ done
 *Step 8:* Use alignment chains to extract coding sequence of orthologously mapped genes for each species in file <span style="font-family:san-serif">species.txt</span>. 
 ```
 for species in $(cat species.txt); do
-    echo "Extrancting coding sequence for ${species} ..."
+    echo "Extracting coding sequence for ${species} ..."
     python extract_coding_seqs.py -reference hg38 -genes ref_genes/hg38.transcriptCoding_clean.bed -queries ${species} -outdir mappings/
 done    
 ```
