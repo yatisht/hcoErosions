@@ -227,9 +227,9 @@ if __name__ == "__main__":
     
     args = vars(parser.parse_args())
     
-    reference = args['r']
-    query = args['q']
-    bed12filename = args['b']
+    reference = args['reference']
+    query = args['query']
+    bed12filename = args['genes']
 
     
     synteny_thresh = 0.05
