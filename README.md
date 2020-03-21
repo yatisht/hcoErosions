@@ -63,7 +63,7 @@ for species in $(cat species.txt); do
 done
 ```
 
-*Step 6:* For each reference-query pair (where the query species are specified in species.txt), find an orthologous chain for each reference gene in file ref_genes/hg38.transcriptCoding_clean.bed. This step can take several hours (5-10 hrs per reference-query pair) but it is possible to trivially parallelize the following for loop across a large number of query species. 
+*Step 6:* For each reference-query pair (where the query species are specified in species.txt), find an orthologous chain for each reference gene in file ref_genes/hg38.transcriptCoding_clean.bed. This step can take several hours (5-10 hrs per reference-query pair) but it is possible to trivially parallelize the following for loop on multiple cores for a large number of query species. 
 ```
 for species in $(cat species.txt); do
     echo "Finding orthologous chain for each reference gene in ${species} alignments ..."
