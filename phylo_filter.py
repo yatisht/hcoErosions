@@ -84,7 +84,7 @@ def LCA(tree, node1, node2):
         p = p_node.identifier
     return p
 
-def dfs(transcript, ref, tree, node, leaf_1, leaf_2, first, all_ret):
+def dfs(transcript, md_dict, ref, tree, node, leaf_1, leaf_2, first, all_ret):
     children = tree.children(node)
     n = tree.get_node(node)
     l1 = tree.get_node(leaf_1)
@@ -96,7 +96,7 @@ def dfs(transcript, ref, tree, node, leaf_1, leaf_2, first, all_ret):
         if node == ref:
             ind = 1
         else:
-            ind = indicator(md_dict[node][transcript])
+            ind = get_indicator(md_dict, node, transcript)
         if ind == 1:
             return (1, 0, 0, [], [], all_ret)
         elif ind == -1:
@@ -107,8 +107,8 @@ def dfs(transcript, ref, tree, node, leaf_1, leaf_2, first, all_ret):
     lost_leaves = []
     undetermined_leaves = []
     for child in children:
-        (i, l, u, ll, uu, ret) = dfs(transcript, ref, tree, child.identifier, \
-                                     leaf_1, leaf_2, 0, [])
+        (i, l, u, ll, uu, ret) = dfs(transcript, md_dict, ref, tree, \
+                                     child.identifier, leaf_1, leaf_2, 0, [])
         for r in ret:
             all_ret.append(r)
         intact += i
@@ -127,6 +127,12 @@ def dfs(transcript, ref, tree, node, leaf_1, leaf_2, first, all_ret):
     else:
         return (intact, lost, undetermined, lost_leaves, undetermined_leaves, \
                 all_ret)
+
+def get_indicator (md_dict, species, transcript_id):
+    if (transcript_id in md_dict[species].keys()):
+        return indicator(md_dict[species][transcript_id])
+    else:
+        return 0
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Apply phylogenetic filter'
@@ -186,7 +192,7 @@ if __name__ == "__main__":
     for transcript in transcript_gene_dict.keys():
         gene_name = transcript_gene_dict[transcript]
         intact_leaves = [k for k in leaves if (k != ref) and \
-                         (indicator(md_dict[k][transcript]) == 1)]
+                         (get_indicator(md_dict, k, transcript) == 1)]
         intact_leaves.append(ref)
         #print transcript, intact_leaves
         intact_ancestors = []
@@ -206,7 +212,8 @@ if __name__ == "__main__":
             leaf_2 = l[1]
             l1 = tree.get_node(leaf_1)
             l2 = tree.get_node(leaf_2)
-            all_ret = dfs(transcript, ref, tree, node, leaf_1, leaf_2, 1, [])
+            all_ret = dfs(transcript, md_dict, ref, tree, node, leaf_1, \
+                          leaf_2, 1, [])
             all_ids = [ret[0] for ret in all_ret]
             sub_tree_ids = []
             for curr_id in all_ids:
