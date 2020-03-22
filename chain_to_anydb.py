@@ -92,8 +92,8 @@ if __name__ == "__main__":
         sys.exit(1)
     
     args = vars(parser.parse_args())
-    reference = args['r']
-    query = args['q']
+    reference = args['reference']
+    query = args['query']
 
     chainIn = CHAIN_DIR + reference + '.' + query + '.all.chain'
     dbOut = CHAIN_DIR + reference + '.' + query + '.all.chain.db'
