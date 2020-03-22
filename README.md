@@ -107,7 +107,7 @@ python generate_md_values.py -reference hg38  -speciesList species.txt
 
 *Step 10:* Apply a phylogenetic filer (read [1]) for each gene to make hcoErosions predictions. The phylogenetic tree is provided as input in Newick format (<span style="font-family:san-serif">species-tree.nh</span>). At the end of this step, a file  <span style="font-family:san-serif">hcoErosions.csv</span> is created that stores all hcoErosions predictions.
 ```
-python phylo_filter.py -reference hg38 -speciesList species.txt -phyloTree species-tree.nh -phyloTree ref_genes/hg38.canonical_gene_transcript_ids.txt -outFile hcoErosions.csv 
+python phylo_filter.py -reference hg38 -speciesList species.txt -phyloTree species-tree.nh -geneTranscriptIds ref_genes/hg38.canonical_gene_transcript_ids.txt -outFile hcoErosions.csv
 ```
 
 
