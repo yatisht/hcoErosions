@@ -761,6 +761,7 @@ def getCDS(assembly, bedRegions):
 
     twoBitFile = getTwoBitFilename(assembly)
 
+    print bedRegions
     strand = bedRegions[0].split()[5]
     with open(os.devnull, 'w') as devnull:
         subprocess.check_call([BED12_TO_BED6, "-cdsOnly", 

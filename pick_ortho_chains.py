@@ -8,6 +8,7 @@ import subprocess
 import pickle
 import sys
 import tempfile
+import gzip
 
 CHAIN_DIR = 'chains/' 
 CHAIN_ID_DIR = 'chain_ids/'
@@ -191,7 +192,7 @@ def find_orthologous_gene(t_chr, t_exon_starts, t_exon_ends, gene_id):
     second_best_overlap_ratio = (float(second_highest_overlap) / \
                                  highest_overlap) 
     level1_score_ratio = float(highest_chain_score) / level1_score
-    return (gene_id, best_chain_id, second_best_chain_id, \
+    return (best_chain_id, second_best_chain_id, \
             best_chain_q_chr, best_chain_q_starts, best_chain_q_ends, \
             best_chain_level, gene_in_synteny, second_best_score_ratio, \
             second_best_overlap_ratio, best_chain_q_strand, level1_chain_id, \
@@ -220,8 +221,12 @@ if __name__ == "__main__":
             help="query assembly name")
     parser.add_argument("-genes", type=str,
             help="reference gene set (bed12 file)")
+    parser.add_argument("-geneTranscriptIds", type=str,
+            help="reference gene set complete trancript ids")    
+    parser.add_argument("-geneCanonicalTranscriptIds", type=str,
+            help="reference gene set canonical trancript ids")    
     
-    if len(sys.argv) <= 6:
+    if len(sys.argv) <= 10:
         parser.print_help()
         sys.exit(1)
     
@@ -230,7 +235,22 @@ if __name__ == "__main__":
     reference = args['reference']
     query = args['query']
     bed12filename = args['genes']
+    gene_transcript_filename = args['geneTranscriptIds']
+    gene_canonical_transcript_filename = args['geneCanonicalTranscriptIds']
 
+    gene_transcript_dict = {}
+    with open(gene_transcript_filename, 'r') as f:
+        for line in f:
+            words = line.split()
+            l = gene_transcript_dict.get(words[0], [])
+            l.append(words[1])
+            gene_transcript_dict[words[0]] = l
+    
+    gene_canonical_transcript_dict = {}
+    with open(gene_canonical_transcript_filename, 'r') as f:
+        for line in f:
+            words = line.split()
+            gene_canonical_transcript_dict[words[0]] = words[1]
     
     synteny_thresh = 0.05
     second_best_thresh = 0.05
@@ -241,7 +261,7 @@ if __name__ == "__main__":
     min_chain_score = 30000
     interval_len = 10000
     
-    chainfile = CHAIN_DIR + reference + '.' + query + '.all.chain'
+    chainfile = CHAIN_DIR + reference + '.' + query + '.all.chain.gz'
     
     chains = {} 
     chain_blocks = {} 
@@ -254,7 +274,7 @@ if __name__ == "__main__":
     not_assigned = []
     selected_chains = set([])
     
-    with open(chainfile, "r") as f:
+    with gzip.open(chainfile, "r") as f:
         for line in f:
             words = line.split()
             if (line[0:5] == 'chain'):
@@ -276,8 +296,8 @@ if __name__ == "__main__":
                 if chain_score < min_chain_score:
                     break
                 chains[chain_id] = [chain_chr, chain_start, chain_end, \
-                                    chain_q_strand, chain_q_chr, chain_q_chr_len, \
-                                    chain_q_start, chain_q_end, chain_score]
+                                chain_q_strand, chain_q_chr, chain_q_chr_len, \
+                                chain_q_start, chain_q_end, chain_score]
                 chain_blocks[chain_id] = []
                 chain_t_gaps[chain_id] = []
                 chain_q_gaps[chain_id] = []
@@ -300,19 +320,20 @@ if __name__ == "__main__":
         chain_lens[chain_id] = sum(chain_blocks[chain_id])
 
     (genes_chr, genes_coords) = get_gene_chr_coords (bed12filename)
-    gene_chain_id = {}
+    transcript_chain_id = {}
 
     count = 0
 
-    for (num, transcript_id) in enumerate(genes_chr.keys()):
+    for (num, gene_id) in enumerate(gene_canonical_transcript_dict.keys()):
          if (num % 1000 == 0):
-             print '- Processed ', num, ' transcripts.'
+             print '- Processed ', num, ' genes.'
+         transcript_id = gene_canonical_transcript_dict[gene_id]
          chr =  genes_chr[transcript_id]
          exon_starts = [genes_coords[transcript_id][k][0] for k in \
                         range(len(genes_coords[transcript_id]))]
          exon_ends = [genes_coords[transcript_id][k][1] for k in \
                       range(len(genes_coords[transcript_id]))]
-         (gene_id, best_chain_id, second_best_chain_id, best_chain_q_chr, \
+         (best_chain_id, second_best_chain_id, best_chain_q_chr, \
           best_chain_q_starts, best_chain_q_ends, best_chain_level, \
           gene_in_synteny, second_best_score_ratio, second_best_overlap_ratio, \
           best_chain_q_strand, level1_chain_id, level1_chr, level1_q_starts, \
@@ -321,7 +342,8 @@ if __name__ == "__main__":
                                                    exon_ends, transcript_id))
          if ((gene_in_synteny < synteny_thresh) and (second_best_score_ratio < \
                            second_best_thresh) and (best_chain_level == 1)):
-             gene_chain_id[gene_id] = [str(best_chain_id)]
+             for tid in gene_transcript_dict[gene_id]:
+                 transcript_chain_id[tid] = [str(best_chain_id)]
              selected_chains.update(set([best_chain_id]))
              for (k, q_start) in enumerate(best_chain_q_starts):
                  q_end = best_chain_q_ends[k]
@@ -332,15 +354,16 @@ if __name__ == "__main__":
                      assigned[best_chain_q_chr].append((q_end, q_start, \
                                                         best_chain_id))
          else:
-            not_assigned.append(transcript_id)
+            not_assigned.append(gene_id)
     
-    for transcript_id in not_assigned:
+    for gene_id in not_assigned:
+         transcript_id = gene_canonical_transcript_dict[gene_id]
          chr =  genes_chr[transcript_id]
          exon_starts = [genes_coords[transcript_id][k][0] for k in \
                         range(len(genes_coords[transcript_id]))]
          exon_ends = [genes_coords[transcript_id][k][1] for k in \
                       range(len(genes_coords[transcript_id]))]
-         (gene_id, best_chain_id, second_best_chain_id, best_chain_q_chr, \
+         (best_chain_id, second_best_chain_id, best_chain_q_chr, \
           best_chain_q_starts, best_chain_q_ends, best_chain_level, \
           gene_in_synteny, second_best_score_ratio, second_best_overlap_ratio, \
           best_chain_q_strand, level1_chain_id, level1_chr, level1_q_starts, \
@@ -355,7 +378,8 @@ if __name__ == "__main__":
              if not(is_assigned(best_chain_id, best_chain_q_chr, \
                             best_chain_q_starts, best_chain_q_ends, assigned)):
                     selected_chains.update(set([best_chain_id]))
-                    gene_chain_id[gene_id] = [str(best_chain_id)]
+                    for tid in gene_transcript_dict[gene_id]:
+                        transcript_chain_id[tid] = [str(best_chain_id)]
                     for (k, q_start) in enumerate(best_chain_q_starts):
                         q_end = best_chain_q_ends[k]
                         if (q_end > q_start):
@@ -369,7 +393,8 @@ if __name__ == "__main__":
              if not(is_assigned(level1_chain_id, level1_chr, level1_q_starts, \
                                 level1_q_ends, assigned)):
                     selected_chains.update(set([level1_chain_id]))
-                    gene_chain_id[gene_id] = [str(level1_chain_id)]
+                    for tid in gene_transcript_dict[gene_id]:
+                        transcript_chain_id[tid] = [str(level1_chain_id)]
                     for (k, q_start) in enumerate(level1_q_starts):
                         q_end = level1_q_ends[k]
                         if (q_end > q_start):
@@ -380,5 +405,5 @@ if __name__ == "__main__":
                                                          level1_chain_id))
 
     outfile = CHAIN_ID_DIR + query + '.p'
-    pickle.dump(gene_chain_id, open(outfile, 'w'))
+    pickle.dump(transcript_chain_id, open(outfile, 'w'))
 

@@ -84,7 +84,7 @@ def LCA(tree, node1, node2):
         p = p_node.identifier
     return p
 
-def dfs(transcript, md_dict, ref, tree, node, leaf_1, leaf_2, first, all_ret):
+def dfs(gene, md_dict, ref, tree, node, leaf_1, leaf_2, first, all_ret):
     children = tree.children(node)
     n = tree.get_node(node)
     l1 = tree.get_node(leaf_1)
@@ -96,7 +96,7 @@ def dfs(transcript, md_dict, ref, tree, node, leaf_1, leaf_2, first, all_ret):
         if node == ref:
             ind = 1
         else:
-            ind = get_indicator(md_dict, node, transcript)
+            ind = get_indicator(md_dict, node, gene)
         if ind == 1:
             return (1, 0, 0, [], [], all_ret)
         elif ind == -1:
@@ -107,7 +107,7 @@ def dfs(transcript, md_dict, ref, tree, node, leaf_1, leaf_2, first, all_ret):
     lost_leaves = []
     undetermined_leaves = []
     for child in children:
-        (i, l, u, ll, uu, ret) = dfs(transcript, md_dict, ref, tree, \
+        (i, l, u, ll, uu, ret) = dfs(gene, md_dict, ref, tree, \
                                      child.identifier, leaf_1, leaf_2, 0, [])
         for r in ret:
             all_ret.append(r)
@@ -128,9 +128,9 @@ def dfs(transcript, md_dict, ref, tree, node, leaf_1, leaf_2, first, all_ret):
         return (intact, lost, undetermined, lost_leaves, undetermined_leaves, \
                 all_ret)
 
-def get_indicator (md_dict, species, transcript_id):
-    if (transcript_id in md_dict[species].keys()):
-        return indicator(md_dict[species][transcript_id])
+def get_indicator (md_dict, species, gene_id):
+    if (gene_id in md_dict[species].keys()):
+        return indicator(md_dict[species][gene_id])
     else:
         return 0
 
@@ -144,13 +144,13 @@ if __name__ == "__main__":
     parser.add_argument("-speciesList", type=str,
                         help="file containing list of query species")
 
-    parser.add_argument("-geneTranscriptIds", type=str,
-                        help="file mapping gene id to canonical transcript id")
-
     parser.add_argument("-phyloTree", type=str,
-                        help="file containing phylogenetic tree of species list"\
-                        "in nh format")
+                        help="file containing phylogenetic tree of species "\
+                        "list in newick format")
     
+    parser.add_argument("-geneTranscriptIds", type=str,
+            help="reference gene set complete trancript ids")    
+
     parser.add_argument("-outFile", type=str,
                         help="output file containing hiconfErosion predictions"\
                         " (csv format)")
@@ -162,8 +162,8 @@ if __name__ == "__main__":
     args = vars(parser.parse_args())
     ref = args['reference']
     qF = args['speciesList']
-    gene_transcript_filename = args['geneTranscriptIds']
     tree_filename = args['phyloTree']
+    gene_transcript_filename = args['geneTranscriptIds']
     out_filename = args['outFile']
 
     tree = create_tree(tree_filename)
@@ -176,25 +176,28 @@ if __name__ == "__main__":
     leaves = [l.identifier for l in  tree.leaves(tree.root)]
     md_dict = pickle.load(open(MD_DIR+'md_dict.p'))
 
+    #    transcript_gene_dict = {}
+    gene_names = set([])
 
-    transcript_gene_dict = {}
     with open(gene_transcript_filename, 'r') \
             as f:
         for line in f:
             words = line.split()
-            transcript_gene_dict[words[1]] = words[0]
+            gene_names.add(words[0])
+#            transcript_gene_dict[words[1]] = words[0]
     #print transcript_gene_dict
 
     print 'Finding hiconfErosion predictions.'
     print '#Gene, Intact-1, Intact-2, hiconfErosion species'
     writer.writerow(['Gene', 'Intact-1', 'Intact-2', 'hiconfErosion species (-'\
                      ' separated)'])
-    for transcript in transcript_gene_dict.keys():
-        gene_name = transcript_gene_dict[transcript]
+#    for transcript in transcript_gene_dict.keys():
+    for gene_name in gene_names:
+#        gene_name = transcript_gene_dict[transcript]
         intact_leaves = [k for k in leaves if (k != ref) and \
-                         (get_indicator(md_dict, k, transcript) == 1)]
+                         (get_indicator(md_dict, k, gene_name) == 1)]
         intact_leaves.append(ref)
-        #print transcript, intact_leaves
+        #print gene_name, intact_leaves
         intact_ancestors = []
         intact_ancestor_leaves = {}
         for leaf_1 in [ref]:
@@ -212,7 +215,7 @@ if __name__ == "__main__":
             leaf_2 = l[1]
             l1 = tree.get_node(leaf_1)
             l2 = tree.get_node(leaf_2)
-            all_ret = dfs(transcript, md_dict, ref, tree, node, leaf_1, \
+            all_ret = dfs(gene_name, md_dict, ref, tree, node, leaf_1, \
                           leaf_2, 1, [])
             all_ids = [ret[0] for ret in all_ret]
             sub_tree_ids = []

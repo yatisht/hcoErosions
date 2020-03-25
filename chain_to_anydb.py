@@ -3,13 +3,14 @@ import argparse
 import os
 import sys
 import pickle
+import gzip
 
 CHAIN_DIR = 'chains/' 
 CHAIN_ID_DIR = 'chain_ids/'
 
 def chainHeaderToDb(chain_ids, chainIn, dbOut):
     db = anydbm.open(dbOut, 'n')
-    with open(chainIn, 'r') as f:
+    with gzip.open(chainIn, 'r') as f:
         for line in f:
             if (line[0:5] == 'chain'):
                 words = line.split()
@@ -32,7 +33,7 @@ def chainLinkToDb(chain_ids, chainIn, dbOut):
     strand = '+'
     in_chain = False
     print_chain = False
-    with open(chainIn, 'r') as f:
+    with gzip.open(chainIn, 'r') as f:
         for line in f:
             words = line.split()
             if (line[0:5] == 'chain'):
@@ -95,7 +96,7 @@ if __name__ == "__main__":
     reference = args['reference']
     query = args['query']
 
-    chainIn = CHAIN_DIR + reference + '.' + query + '.all.chain'
+    chainIn = CHAIN_DIR + reference + '.' + query + '.all.chain.gz'
     dbOut = CHAIN_DIR + reference + '.' + query + '.all.chain.db'
     linkDbOut = CHAIN_DIR + reference + '.' + query + '.all.chain.link.db'
     
