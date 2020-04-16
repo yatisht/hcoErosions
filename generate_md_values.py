@@ -55,9 +55,9 @@ def get_species_md_dict(reference, query, transcript_gene_dict):
                 if (indels[0].isdigit() and indels[1].isdigit()):
                     if (int(indels[1]) > 30):
                         numDel10 += int(indels[1])/3.0
-        transcriptDelRate[transcriptName] = (1.0*numNonSyn)/(transcriptLen \
+        transcriptMutRate[transcriptName] = (1.0*numNonSyn)/(transcriptLen \
                                                              - numDel + 0.1)
-        transcriptMutRate[transcriptName] = (1.0*numDel10) / transcriptLen
+        transcriptDelRate[transcriptName] = (1.0*numDel10) / transcriptLen
     
     
     a = []

@@ -52,11 +52,12 @@ def indicator(feature_vectors):
         md = feature_vec[2]
         chain_assigned = feature_vec[3]
         non_gaps = feature_vec[1]
+        dels = feature_vec[0]
         if feature_vec[0] < 1:
             all_del = False
         if (chain_assigned < 1): # or (feature_vec[2] == 1):
             l.append(0)
-        elif md > outlier_thresh and feature_vec[0] > 0.1:
+        elif md > outlier_thresh and dels > 0.1:
             l.append(-1)
         elif (md > intact_thresh) or (chain_assigned == 0) or (non_gaps > 0.2): 
             l.append(0)
