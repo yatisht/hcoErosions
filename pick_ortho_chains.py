@@ -258,7 +258,7 @@ if __name__ == "__main__":
     overlap_thresh = 0.3
     score_thresh = 0.1
     
-    min_chain_score = 30000
+    min_chain_score = 5000
     interval_len = 10000
     
     chainfile = CHAIN_DIR + reference + '.' + query + '.all.chain.gz'

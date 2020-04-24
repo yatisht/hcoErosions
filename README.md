@@ -6,7 +6,7 @@ The code has been developed using **python2** and tested successfully on an Ubun
 
 Below, we provide instructions to perform a sample analysis using human (hg38) as the reference assembly to query the mouse (mm10), rat (rn6), rabbit (cavPor3) and armadillo (dasNov3) genomes for high confidence gene losses. 
 
-The sample query species are chosen in such a way so that loss predictions are made primarily for the mouse (mm10) and rat (rn6) genomes and that the computation finishes in <1 day on a 4-core CPU when Step 6 is parallelized. In particular, the sample analysis yields 44 out of the 68 reported gene losses for mouse and rat described in [1]. To yield all 68 predictions, the entire set of 58 placental mammals used in [1] should be provided as input via species.txt. This full analysis may require several days of compute time and may also require some alignment chains not available from http://hgdownload.cse.ucsc.edu to be generated using [doBlastzChainNet.pl](https://github.com/ENCODE-DCC/kentUtils/blob/master/src/hg/utils/automation/doBlastzChainNet.pl).
+The sample query species are chosen in such a way so that loss predictions are made primarily for the mouse (mm10) and rat (rn6) genomes and that the computation finishes in <1 day on a 4-core CPU when Step 6 is parallelized. In particular, the sample analysis yields 23 out of the 68 reported gene losses for mouse and rat described in [1]. To yield all 68 predictions, the entire set of 58 placental mammals used in [1] should be provided as input via species.txt. This full analysis may require several days of compute time and may also require some alignment chains not available from http://hgdownload.cse.ucsc.edu to be generated using [doBlastzChainNet.pl](https://github.com/ENCODE-DCC/kentUtils/blob/master/src/hg/utils/automation/doBlastzChainNet.pl).
 
 Note that other researchers can substitute or add to any or all of the species in the provided example to fit their own interests!
 
@@ -113,3 +113,7 @@ python phylo_filter.py -reference hg38 -speciesList species.txt -phyloTree speci
 ## Citation
 
 [1] Yatish Turakhia*, Heidi Chen*, Amir Marcovitz*, and Gill Bejerano. "Loss of critical developmental and human disease-causing genes in 58 mammals." bioRxiv (2019): 819169 (* equal contributors).
+
+
+Copyright
+© Bejerano lab (http://bejerano.stanford.edu/)
