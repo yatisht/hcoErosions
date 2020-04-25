@@ -115,5 +115,3 @@ python phylo_filter.py -reference hg38 -speciesList species.txt -phyloTree speci
 [1] Yatish Turakhia*, Heidi Chen*, Amir Marcovitz*, and Gill Bejerano. "Loss of critical developmental and human disease-causing genes in 58 mammals." bioRxiv (2019): 819169 (* equal contributors).
 
 
-Copyright
-© Bejerano lab (http://bejerano.stanford.edu/)
