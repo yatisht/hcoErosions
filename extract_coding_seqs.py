@@ -523,7 +523,7 @@ def getSequence(assembly, bedRegions, twoBitFile=None):
         twoBitFile = getTwoBitFilename(assembly)
     with open(os.devnull, 'w') as devnull:
         subprocess.check_call([TWO_BIT_TO_FA, twoBitFile, tmpOut.name,
-                "-bed=%s" % tmpBed.name, '-noMask'])
+                "-bed=%s" % tmpBed.name, '-noMask'], shell=True)
 
     seqs = []
     for line in tmpOut:
@@ -660,7 +660,7 @@ class ChainHelper:
         tmpBed = tempfile.NamedTemporaryFile(suffix='.bed')
         subprocess.check_call([ BIG_BED_TO_BED, self.chainBigBed, tmpBed.name, 
                 '-chrom=%s' % bedRegion.chrom, '-start=%d' % bedRegion.start,
-                '-end=%d' % bedRegion.end ]) 
+                '-end=%d' % bedRegion.end ], shell=True) 
 	possibleChains = []
 	for line in tmpBed:
 	    possibleChains += [BedRegion.parse(line.strip())]
@@ -765,11 +765,11 @@ def getCDS(assembly, bedRegions):
     strand = bedRegions[0].split()[5]
     with open(os.devnull, 'w') as devnull:
         subprocess.check_call([BED12_TO_BED6, "-cdsOnly", 
-                               "-i", tmpBed.name, "-o", tmpBed6.name]) 
+                               "-i", tmpBed.name, "-o", tmpBed6.name], shell=True) 
 
     with open(os.devnull, 'w') as devnull:
         subprocess.check_call([TWO_BIT_TO_FA, twoBitFile, tmpOut.name,
-                "-bed=%s" % tmpBed6.name,'-noMask'])
+                "-bed=%s" % tmpBed6.name,'-noMask'], shell=True)
     
     curr_transcript = ''
     curr_exons = ['']
