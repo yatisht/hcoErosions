@@ -522,8 +522,8 @@ def getSequence(assembly, bedRegions, twoBitFile=None):
     if not twoBitFile:
         twoBitFile = getTwoBitFilename(assembly)
     with open(os.devnull, 'w') as devnull:
-        subprocess.check_call(["sh", "-c", TWO_BIT_TO_FA, twoBitFile, tmpOut.name,
-                "-bed=%s" % tmpBed.name, '-noMask'])
+        os.system("%s %s %s %s %s" % (TWO_BIT_TO_FA, twoBitFile, tmpOut.name,
+                "-bed=%s" % tmpBed.name, '-noMask'))
 
     seqs = []
     for line in tmpOut:
@@ -658,9 +658,9 @@ class ChainHelper:
 
     def chainsOverlappingRegion(self, bedRegion):
         tmpBed = tempfile.NamedTemporaryFile(suffix='.bed')
-        subprocess.check_call([ "sh", "-c", BIG_BED_TO_BED, self.chainBigBed, tmpBed.name, 
+        os.system("%s %s %s %s %s %s" % (BIG_BED_TO_BED, self.chainBigBed, tmpBed.name, 
                 '-chrom=%s' % bedRegion.chrom, '-start=%d' % bedRegion.start,
-                '-end=%d' % bedRegion.end ]) 
+                '-end=%d' % bedRegion.end)) 
 	possibleChains = []
 	for line in tmpBed:
 	    possibleChains += [BedRegion.parse(line.strip())]
@@ -764,12 +764,12 @@ def getCDS(assembly, bedRegions):
     print bedRegions
     strand = bedRegions[0].split()[5]
     with open(os.devnull, 'w') as devnull:
-        subprocess.check_call(["sh", "-c", BED12_TO_BED6, "-cdsOnly", 
-                               "-i", tmpBed.name, "-o", tmpBed6.name]) 
+        os.system("%s %s %s %s %s %s" % (BED12_TO_BED6, "-cdsOnly", 
+                               "-i", tmpBed.name, "-o", tmpBed6.name)) 
 
     with open(os.devnull, 'w') as devnull:
-        subprocess.check_call(["sh", "-c", TWO_BIT_TO_FA, twoBitFile, tmpOut.name,
-                "-bed=%s" % tmpBed6.name,'-noMask'])
+        os.system("%s %s %s %s %s" % (TWO_BIT_TO_FA, twoBitFile, tmpOut.name,
+                "-bed=%s" % tmpBed6.name,'-noMask'))
     
     curr_transcript = ''
     curr_exons = ['']
